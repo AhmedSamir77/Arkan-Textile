@@ -18,9 +18,9 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import Cookies from "js-cookie";
-import axios from "axios";
+import axiosInstance from "../../plugins/axios";
 import { BallTriangle } from "react-loader-spinner";
+import { useFormik } from "formik";
 
 const style = {
   position: "absolute",
@@ -35,46 +35,93 @@ const style = {
 };
 
 export default function Users() {
+  const [mode, setMode] = useState(0);
+
   const [userDetails, setUserDetails] = useState({});
+  const [userToView, setUserToView] = useState({});
   const [loading, setLoading] = useState(true);
   // axios api's
 
-  const axiosInstance = axios.create({
-    baseURL: "http://127.0.0.1:8000/api/v1/users", // Set your API base URL here
-    timeout: 5000, // Set your desired timeout
-  });
-
-  // Add a request interceptor
-  axiosInstance.interceptors.request.use(
-    (config) => {
-      // Get the token from your storage (localStorage, sessionStorage, etc.)
-      const userToken = Cookies.get("userToken"); // Adjust this according to your setup
-
-      // If userToken exists, add it to the Authorization header
-      if (userToken) {
-        config.headers.Authorization = `Bearer ${userToken}`;
-      }
-
-      return config;
+  let formik = useFormik({
+    initialValues: {
+      id: "",
+      name: "",
+      email: "",
+      password: "",
+      role: 0,
+      phone: "",
+      countryCode: "002",
     },
-    (error) => {
-      // Handle request errors
-      return Promise.reject(error);
+    onSubmit: handleUser,
+  });
+  async function removeUser(id) {
+    try {
+      let { data } = await axiosInstance.delete(`v1/users/${id}`);
+      getUsers();
+    } catch (error) {
+      console.log(error);
     }
-  );
-
+  }
+  function editUserModal(data) {
+    formik.values.name = data.name;
+    formik.values.role = data.role;
+    formik.values.phone = data.phone;
+    formik.values.email = data.email;
+    formik.values.id = data.id;
+    setMode(1);
+    setOpen(true);
+  }
+  function handleUser(values) {
+    if (mode === 0) {
+      createUser(values);
+    } else {
+      editUser(values);
+    }
+  }
+  function viewUser(data) {
+    console.log(data);
+    setUserToView(data);
+    setViewModal(true);
+  }
   async function getUsers() {
     try {
-      let { data } = await axiosInstance.get("?pageSize=-1");
+      let { data } = await axiosInstance.get("v1/users?pageSize=-1");
       console.log(data);
       setLoading(false);
 
       setUserDetails(data);
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   }
 
+  async function createUser(values) {
+    try {
+      let data = await axiosInstance.post("v1/users", values);
+      console.log(data);
+      getUsers();
+
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setOpen(false);
+    }
+  }
+  async function editUser(values) {
+    console.log(values);
+    try {
+      let data = await axiosInstance.patch(`v1/users/${values.id}`, values);
+      console.log(data);
+      getUsers();
+
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setOpen(false);
+    }
+  }
 
   useEffect(() => {
     getUsers();
@@ -88,8 +135,14 @@ export default function Users() {
   };
 
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [viewModal, setViewModal] = React.useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+    setMode(0);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -130,7 +183,6 @@ export default function Users() {
           {" "}
           <i class="fa-solid fa-plus"></i>Add New User
         </Button>
-
         <Modal
           open={open}
           onClose={handleClose}
@@ -138,51 +190,124 @@ export default function Users() {
           aria-describedby="modal-modal-description"
         >
           <Box sx={style}>
+            <form action="" onSubmit={formik.handleSubmit}>
+              <TextField
+                required
+                id="name"
+                label="username"
+                variant="outlined"
+                sx={{ width: "100%", marginBottom: 3 }}
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+
+              <TextField
+                id="email"
+                label="email"
+                variant="outlined"
+                sx={{ width: "100%", marginBottom: 3 }}
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              <TextField
+                required
+                id="password"
+                label="password"
+                type="password"
+                variant="outlined"
+                sx={{ width: "100%", marginBottom: 3 }}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+
+              <FormControl fullWidth sx={{ width: "100%", marginBottom: 3 }}>
+                <InputLabel id="demo-simple-select-label">role</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="role"
+                  name="role"
+                  label="role"
+                  value={formik.values.role}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                >
+                  <MenuItem value={null}>select role</MenuItem>
+
+                  <MenuItem value={0}>admin</MenuItem>
+                  <MenuItem value={1}>worker</MenuItem>
+                  <MenuItem value={2}>data entry</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                id="phone"
+                label="phone"
+                variant="outlined"
+                sx={{ width: "100%", marginBottom: 3 }}
+                value={formik.values.phone}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+
+              <Button type="submit" variant="contained">
+                Confirm
+              </Button>
+            </form>
+          </Box>
+        </Modal>{" "}
+        <Modal
+          open={viewModal}
+          onClose={() => setViewModal(false)}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
             <TextField
               required
-              id="filled-required"
+              disabled
+              id="name"
               label="username"
               variant="outlined"
               sx={{ width: "100%", marginBottom: 3 }}
+              value={userToView.name}
             />
 
             <TextField
-              id="outlined-basic"
+              disabled
+              id="email"
               label="email"
               variant="outlined"
               sx={{ width: "100%", marginBottom: 3 }}
-            />
-            <TextField
-              required
-              id="filled-required"
-              label="id"
-              variant="outlined"
-              sx={{ width: "100%", marginBottom: 3 }}
+              value={userToView.email}
             />
 
             <FormControl fullWidth sx={{ width: "100%", marginBottom: 3 }}>
               <InputLabel id="demo-simple-select-label">role</InputLabel>
               <Select
+                readOnly
                 labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={role}
+                id="role"
+                name="role"
                 label="role"
-                onChange={handleChange}
+                value={userToView.role}
               >
-                <MenuItem value={10}>admin</MenuItem>
-                <MenuItem value={20}>super admin</MenuItem>
-                <MenuItem value={30}>worker</MenuItem>
-                <MenuItem value={30}>data entry</MenuItem>
+                <MenuItem value={null}>select role</MenuItem>
+
+                <MenuItem value={0}>admin</MenuItem>
+                <MenuItem value={2}>worker</MenuItem>
+                <MenuItem value={1}>data entry</MenuItem>
               </Select>
             </FormControl>
             <TextField
-              id="outlined-basic"
+              disabled
+              id="phone"
               label="phone"
               variant="outlined"
               sx={{ width: "100%", marginBottom: 3 }}
+              value={userToView.phone}
             />
-
-            <Button variant="contained">Confirm</Button>
           </Box>
         </Modal>
       </div>
@@ -215,9 +340,18 @@ export default function Users() {
                   <TableCell>{row.role}</TableCell>
                   <TableCell>{row.phone}</TableCell>
                   <TableCell>
-                    <i className="log mx-2 fa-solid fa-eye"></i>
-                    <i className="log mx-2 fa-solid fa-pen-to-square"></i>
-                    <i className="log mx-2 fa-solid fa-trash"></i>
+                    <i
+                      className="log mx-2 fa-solid fa-eye"
+                      onClick={() => viewUser(row)}
+                    ></i>
+                    <i
+                      className="log mx-2 fa-solid fa-pen-to-square"
+                      onClick={() => editUserModal(row)}
+                    ></i>
+                    <i
+                      className="log mx-2 fa-solid fa-trash"
+                      onClick={() => removeUser(row.id)}
+                    ></i>
                   </TableCell>
                 </TableRow>
               ))}
