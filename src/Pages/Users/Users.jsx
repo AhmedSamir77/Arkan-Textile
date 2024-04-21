@@ -40,7 +40,7 @@ export default function Users() {
   const [userDetails, setUserDetails] = useState({});
   const [userToView, setUserToView] = useState({});
   const [loading, setLoading] = useState(true);
-  // axios api's
+ 
 
   let formik = useFormik({
     initialValues: {
