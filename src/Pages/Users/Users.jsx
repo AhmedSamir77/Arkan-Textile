@@ -135,7 +135,7 @@ export default function Users() {
   };
 
   const [open, setOpen] = React.useState(false);
-  const [viewModal, setViewModal] = React.useState(false);
+  const [viewModal, setViewModal] = React.useState(false); //customize const
   const handleOpen = () => {
     setOpen(true);
     setMode(0);

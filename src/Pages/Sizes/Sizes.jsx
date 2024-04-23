@@ -69,17 +69,48 @@ export default function Sizes() {
 
   const [sizeDetails, setSizeDetails] = useState({});
   const [loading, setLoading] = useState(true);
+  const [mode, setMode] = useState(0);
 
   let formik = useFormik({
     initialValues: {
+      id: "",
       code: "",
+      
     },
-    onSubmit: createSize,
+    onSubmit: handleSize,
   });
+
+  function editSizeModal(data) {
+    formik.values.code = data.code;
+    formik.values.id = data.id;
+    setOpen(true);
+    setMode(1);
+  }
+
+  function handleSize(values) {
+    if (mode === 0) {
+      createSize(values);
+    } else {
+      editSize(values);
+    }
+  }
+  async function editSize(values) {
+    console.log(values);
+    try {
+      let data = await axiosInstance.patch(`v1/sizes/${values.id}`, values);
+      console.log(data);
+      setLoading(false);
+      getSizes();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setOpen(false);
+    }
+  }
 
   async function createSize(values) {
     try {
-      let data = await axiosInstance.post("v1/sizes", values);
+      let { data } = await axiosInstance.post("v1/sizes", values);
       console.log(data);
       setLoading(false);
       getSizes();
@@ -166,7 +197,10 @@ export default function Sizes() {
 
                   <TableCell align="right">
                     <i className="log mx-2 fa-solid fa-eye"></i>
-                    <i className="log mx-2 fa-solid fa-pen-to-square"></i>
+                    <i
+                      className="log mx-2 fa-solid fa-pen-to-square"
+                      onClick={() => editSizeModal(row)}
+                    ></i>
                     <i className="log mx-2 fa-solid fa-trash"></i>
                   </TableCell>
                 </TableRow>
