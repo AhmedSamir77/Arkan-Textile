@@ -64,18 +64,19 @@ const rows = [
 
 export default function Sizes() {
   const [open, setOpen] = React.useState(false);
+  const [viewModal, setViewModal] = React.useState(false); //customize constant useState for new modal to view
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const [sizeDetails, setSizeDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState(0);
+  const [sizeToView, setSizeToView] = useState({});
 
   let formik = useFormik({
     initialValues: {
       id: "",
       code: "",
-      
     },
     onSubmit: handleSize,
   });
@@ -108,6 +109,12 @@ export default function Sizes() {
     }
   }
 
+  function viewSize(data) {
+    console.log(data);
+    setSizeToView(data);
+    setViewModal(true);
+  }
+
   async function createSize(values) {
     try {
       let { data } = await axiosInstance.post("v1/sizes", values);
@@ -118,6 +125,15 @@ export default function Sizes() {
       console.log(error);
     } finally {
       setOpen(false);
+    }
+  }
+
+  async function removeSize(id) {
+    try {
+      let { data } = await axiosInstance.delete(`v1/sizes/${id}`);
+      getSizes();
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -170,6 +186,25 @@ export default function Sizes() {
             </form>
           </Box>
         </Modal>
+
+        <Modal
+          open={viewModal}
+          onClose={() => setViewModal(false)}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <TextField
+              required
+              disabled
+              id="code"
+              label="Size Code"
+              variant="outlined"
+              sx={{ width: "100%", marginBottom: 3 }}
+              value={sizeToView.code}
+            />
+          </Box>
+        </Modal>
       </div>
 
       {sizeDetails?.data ? (
@@ -196,12 +231,18 @@ export default function Sizes() {
                   <TableCell>{row.code}</TableCell>
 
                   <TableCell align="right">
-                    <i className="log mx-2 fa-solid fa-eye"></i>
+                    <i
+                      className="log mx-2 fa-solid fa-eye"
+                      onClick={() => viewSize(row)}
+                    ></i>
                     <i
                       className="log mx-2 fa-solid fa-pen-to-square"
                       onClick={() => editSizeModal(row)}
                     ></i>
-                    <i className="log mx-2 fa-solid fa-trash"></i>
+                    <i
+                      className="log mx-2 fa-solid fa-trash"
+                      onClick={() => removeSize(row.id)}
+                    ></i>
                   </TableCell>
                 </TableRow>
               ))}
