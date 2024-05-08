@@ -196,7 +196,7 @@ export default function Sizes() {
           <Box sx={style}>
             <TextField
               required
-              disabled
+              readOnly
               id="code"
               label="Size Code"
               variant="outlined"

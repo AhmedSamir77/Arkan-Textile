@@ -72,6 +72,8 @@ export default function Languages() {
   const [mode, setMode] = useState(0);
   const [langDetails, setLangDetails] = useState({});
   const [loading, setLoading] = useState(true);
+  const [viewModal, setViewModal] = React.useState(false);
+  const [langToView, setLangToView] = useState({});
 
   let formik = useFormik({
     initialValues: {
@@ -98,6 +100,12 @@ export default function Languages() {
     setMode(1);
   }
 
+  function viewLang(data) {
+    console.log(data);
+    setLangToView(data);
+    setViewModal(true);
+  }
+
   async function editLang(values) {
     try {
       let { data } = await axiosInstance.patch(
@@ -111,6 +119,15 @@ export default function Languages() {
       console.log(error);
     } finally {
       setOpen(false);
+    }
+  }
+
+  async function removeLang(id) {
+    try {
+      let { data } = await axiosInstance.delete(`v1/languages/${id}`);
+      getLang();
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -187,6 +204,34 @@ export default function Languages() {
             </form>
           </Box>
         </Modal>
+
+        <Modal
+          open={viewModal}
+          onClose={() => setViewModal(false)}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <TextField
+              required
+              readOnly
+              id="code"
+              label="Size Code"
+              variant="outlined"
+              sx={{ width: "100%", marginBottom: 3 }}
+              value={langToView.name}
+            />
+            <TextField
+              required
+              readOnly
+              id="code"
+              label="Size Code"
+              variant="outlined"
+              sx={{ width: "100%", marginBottom: 3 }}
+              value={langToView.code}
+            />
+          </Box>
+        </Modal>
       </div>
 
       {langDetails?.data ? (
@@ -215,12 +260,18 @@ export default function Languages() {
                   <TableCell align="center">{row.code}</TableCell>
 
                   <TableCell align="right">
-                    <i className="log mx-2 fa-solid fa-eye"></i>
+                    <i
+                      className="log mx-2 fa-solid fa-eye"
+                      onClick={() => viewLang(row)}
+                    ></i>
                     <i
                       className="log mx-2 fa-solid fa-pen-to-square"
                       onClick={() => editLangModal(row)}
                     ></i>
-                    <i className="log mx-2 fa-solid fa-trash"></i>
+                    <i
+                      className="log mx-2 fa-solid fa-trash"
+                      onClick={() => removeLang(row.id)}
+                    ></i>
                   </TableCell>
                 </TableRow>
               ))}

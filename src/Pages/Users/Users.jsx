@@ -266,7 +266,7 @@ export default function Users() {
           <Box sx={style}>
             <TextField
               required
-              disabled
+              readOnly
               id="name"
               label="username"
               variant="outlined"
@@ -275,7 +275,7 @@ export default function Users() {
             />
 
             <TextField
-              disabled
+              readOnly
               id="email"
               label="email"
               variant="outlined"
@@ -301,7 +301,7 @@ export default function Users() {
               </Select>
             </FormControl>
             <TextField
-              disabled
+              readOnly
               id="phone"
               label="phone"
               variant="outlined"
