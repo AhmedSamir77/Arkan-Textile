@@ -15,6 +15,15 @@ body {
 
 .fonty {
   font-family: "Dancing Script", cursive;
+  
+}
+.fontyy {
+  font-family: "Dancing Script", cursive;
+  color: crimson;
+}
+.fontyyy {
+  font-family: "Dancing Script", cursive;
+  color: blueviolet;
 }
 
 .move {
