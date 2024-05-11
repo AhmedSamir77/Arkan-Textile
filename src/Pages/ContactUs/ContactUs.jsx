@@ -79,7 +79,7 @@ export default function ContactUs() {
         />
      </div>
     <div className="container customize mt-4 ">
-    <Button variant="contained"  sx={{ width: "950px" }}>Contained</Button>
+    <Button variant="contained"  sx={{ width: "950px" }}>Confirm</Button>
     </div>
    
     </>
