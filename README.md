@@ -11,7 +11,9 @@
  All project setup instructions will be found in repo readme
  
  ● PostmanCollection
+ 
  [LazySoftware E-commerce Web APIs Postman Collection](https://drive.google.com/file/d/1Cf4VhvKJllqIgHqZ04-mDuxN49D71-ap/view)
+ 
  hints : to use the postman collection you will have to download and install
  Postman (latest version)
  Then you will import the collection into postman
