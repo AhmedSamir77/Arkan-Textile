@@ -3,7 +3,7 @@
 
  ● Back-end Github Repository
  
- AElgamal5/e-commerce
+[ AElgamal5/e-commerce](https://github.com/AElgamal5/e-commerce)
  
  Simple e-commerce using laravel (github.com)
  Hints: to use this backend project you will have to download and install
@@ -11,7 +11,7 @@
  All project setup instructions will be found in repo readme
  
  ● PostmanCollection
- LazySoftware E-commerce Web APIs Postman Collection
+ [LazySoftware E-commerce Web APIs Postman Collection](https://drive.google.com/file/d/1Cf4VhvKJllqIgHqZ04-mDuxN49D71-ap/view)
  hints : to use the postman collection you will have to download and install
  Postman (latest version)
  Then you will import the collection into postman
